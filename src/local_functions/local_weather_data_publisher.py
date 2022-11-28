@@ -7,6 +7,7 @@ import pandas as pd
 import requests
 from google.cloud import pubsub_v1, storage
 import configparser
+import json
 
 config = configparser.ConfigParser()
 config.read('../credentials/project_details.ini')
@@ -56,15 +57,15 @@ def get_country_cities(locations, country_en_name='Belgium'):
 
 
 def send_data_to_topic(str_data):
-    publisher.publish(topic_path, str_data.encode("utf-8"))
+    publisher.publish(topic_path, str_data)
 
 
 def collect_weather_for_cities_in_dataframe(cities_df: pd.DataFrame):
     logging.info(f"Data collection process for {cities_df.shape[0]} started")
-    for _, row in country_cities.iterrows():
+    for _, row in cities_df.iterrows():
         try:
             weather_data_raw = get_weather_data(lat=row['lat'], lon=row['lon'])
-            send_data_to_topic(str_data=str(weather_data_raw))
+            send_data_to_topic(str_data=json.dumps(weather_data_raw).encode('UTF-8'))
         except ValueError as e:
             print(e)
 

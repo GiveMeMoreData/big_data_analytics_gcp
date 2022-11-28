@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from google.cloud import pubsub_v1, storage
 import configparser
+import json
 
 config = configparser.ConfigParser()
 config.read('../credentials/project_details.ini')
@@ -17,7 +18,7 @@ PUBLISH_INTERVAL = 5  # is seconds, will result in sending new data to cloud eve
 
 
 def load_historical_data():
-    def download_blob(bucket_name="historical_price_data",
+    def download_blob(bucket_name="energy_price_data",
                       source_blob_name="european_wholesale_electricity_price_data_hourly.csv"):
         """Downloads a blob from the bucket."""
         logging.info("Downloading historical_price_data")
@@ -40,7 +41,7 @@ def fill_data(prev_row, cur_row, time_step=5, original_time_step=60 * 60):
 
 
 def send_data_to_topic(str_data):
-    publisher.publish(topic_path, str_data.encode("utf-8"))
+    publisher.publish(topic_path, str_data)
 
 
 def publishing_loop(row, prev_row, delay, country, iso_code, tz_diff):
@@ -50,14 +51,14 @@ def publishing_loop(row, prev_row, delay, country, iso_code, tz_diff):
 
     next_time = time.time() + delay
     for i in range(in_between_points):
-        data = {'Country': country,
-                'ISO3 Code': iso_code,
-                'Datetime (UTC)': str(timestamps[i]),
-                'Datetime (Local)': str(timestamps[i] + tz_diff),
-                'Price (EUR/MWhe)': prices[i]}
+        data = {"Country": country,
+                "ISO3 Code": iso_code,
+                "Datetime (UTC)": str(timestamps[i]),
+                "Datetime (Local)": str(timestamps[i] + tz_diff),
+                "Price (EUR/MWhe)": prices[i]}
         time.sleep(max(0, next_time - time.time()))
         try:
-            send_data_to_topic(str(data))
+            send_data_to_topic(json.dumps(data).encode('UTF-8'))
         except Exception as e:
             logging.exception("Problem while executing repetitive task. ", e)
         # skip tasks if we are behind schedule:
