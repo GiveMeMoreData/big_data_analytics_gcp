@@ -10,7 +10,7 @@ import configparser
 import json
 
 config = configparser.ConfigParser()
-config.read('../credentials/project_details.ini')
+config.read('../../credentials/project_details.ini')
 project_id = config['GCP']['project_id']
 topic_id = config['GCP']['weather_topic_id']
 
@@ -27,7 +27,7 @@ def get_weather_data(lat, lon, api_path="https://api.openweathermap.org/data/2.5
 
 
 def load_location_data():
-    def download_blob(bucket_name="locations_europe",
+    def download_blob(bucket_name="europe_locations",
                       source_blob_name="geonames-all-cities-with-a-population-1000.csv"):
         """Downloads a blob from the bucket."""
         logging.info("Downloading locations")
@@ -75,7 +75,7 @@ def collect_weather_for_cities_in_dataframe(cities_df: pd.DataFrame):
 if __name__ == "__main__":
 
     logging.basicConfig(level=logging.INFO)
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "../credentials/project.json"
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "../../credentials/project.json"
 
     logging.info("Creating publisher")
     publisher = pubsub_v1.PublisherClient()

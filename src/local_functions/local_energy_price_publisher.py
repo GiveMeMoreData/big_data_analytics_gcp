@@ -10,7 +10,7 @@ import configparser
 import json
 
 config = configparser.ConfigParser()
-config.read('../credentials/project_details.ini')
+config.read('../../credentials/project_details.ini')
 project_id = config['GCP']['project_id']
 topic_id = config['GCP']['energy_topic_id']
 COUNTRY = 'Belgium'
@@ -74,7 +74,7 @@ def get_country_data(data, country_name='Belgium'):
 if __name__ == "__main__":
 
     logging.basicConfig(level=logging.INFO)
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "../credentials/project.json"
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "../../credentials/project.json"
 
     logging.info("Creating publisher")
     publisher = pubsub_v1.PublisherClient()
