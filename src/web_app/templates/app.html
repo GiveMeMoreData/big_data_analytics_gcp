@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+    <title>BDAA</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+</head>
+<body>
+    <h2>Real time view</h2>
+    <svg id='plot' viewBox="0 0 300 80"></svg>
+
+    <h2>Energy price prediction</h2>
+    <p id='prediction'></p>
+    
+    <h2>Batch view</h2>
+    <p id='dt'></p>
+    <p id='avg_temp'></p>
+    <p id='avg_feels_like_temp'></p>
+    <p id='avg_humidity'></p>
+    <p id='avg_pressure'></p>
+    <p id='avg_visibility'></p>
+    <p id='avg_wind_deg'></p>
+    <p id='avg_wind_speed'></p>
+    <p id='avg_clouds'></p>
+    <p id='avg_price'></p>
+
+    <script>
+    function getPrediction(){
+        $.getJSON('/getPrediction', function(data) {
+            $("#prediction").text('Current energy price prediction: ' + data.prediction + '\u20AC (' + data.dt + ')');
+        });
+        setTimeout(getPrediction, 5000);
+    }
+    getPrediction();
+    function getBatchView(){
+        $.getJSON('/getBatchView', function(data) {
+            if (!$.isEmptyObject(data)) {
+                $("#dt").text('Time: ' + data.dt);
+                $("#avg_temp").text('Average temperature: ' + data.avg_temp + '\u2103');
+                $("#avg_feels_like_temp").text('Average feels-like temperature: ' + data.avg_feels_like_temp + '\u2103');
+                $("#avg_humidity").text('Average humidity: ' + data.avg_humidity + '%');
+                $("#avg_pressure").text('Average pressure: ' + data.avg_pressure + 'hPa');
+                $("#avg_visibility").text('Average visibility: ' + data.avg_visibility + 'm');
+                $("#avg_wind_deg").text('Average wind degree: ' + data.avg_wind_deg + '\u00B0');
+                $("#avg_wind_speed").text('Average wind speed: ' + data.avg_wind_speed + 'm/s');
+                $("#avg_clouds").text('Average clouds: ' + data.avg_clouds + '%');
+                $("#avg_price").text('Average price: ' + data.avg_price + '\u20AC');
+            }
+        });
+        setTimeout(getBatchView, 300000);
+    }
+    getBatchView();
+    function getPlot(){
+        $.get('/getPlot', function(data) {
+            $("#plot").html(data);
+        });
+        setTimeout(getPlot, 100000);
+    }
+    getPlot();
+    </script>
+</body>
+</html>
